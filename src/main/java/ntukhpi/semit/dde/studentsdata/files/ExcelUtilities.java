@@ -95,78 +95,76 @@ public class ExcelUtilities {
         List<AcademicGroup> groups = new ArrayList<>();
         Path path = Paths.get(filename); //отримуємо шлях до файлу
         try (FileInputStream inputStream = new FileInputStream(path.toFile())) {
+            System.out.println(inputStream.toString());
+            System.out.println(path);
             Workbook workbook = new XSSFWorkbook(inputStream);
-            Sheet sheet = workbook.getSheetAt(0); // отримуємо перший аркуш
+            for (Sheet sheet :workbook) {
+                AcademicGroup groupCurrent = null;
 
-            String fileName = path.getFileName().toString();
-
-            AcademicGroup groupCurrent = null;
-
-            for (Row row : sheet) {
-                //try {
-                if(row.getCell(0)!=null) {
-                    switch (row.getCell(0).getCellType()) {
-                        case STRING:
-                            System.out.println(row.getCell(0).getStringCellValue());
-                            if (row.getCell(0).getStringCellValue().contains(groupPattern)) {
-                                if (groupCurrent != null) {
-                                    groups.add(groupCurrent);
-                                }
-                                groupCurrent = new AcademicGroup(row.getCell(0).getStringCellValue().split("\\s")[0]);
-                                if (groupCurrent.getGroupName().contains(".е") || groupCurrent.getGroupName().contains("і"))
-                                    groupCurrent.setLanguage(EN);
-                            }
-                            break;
-                        case NUMERIC:
-                            if (groupCurrent != null) {
-                                Student student;
-                                String[] nameParts = row.getCell(1).getStringCellValue().split(" ");
-                                if(nameParts.length==3) student = new Student(nameParts[0], nameParts[1], nameParts[2]);
-                                else if(nameParts.length==2)student = new Student(nameParts[0], nameParts[1], "NULL");
-                                else{
-                                    String LName = nameParts[0];
-                                    StringBuilder MName = new StringBuilder(nameParts[1]);
-                                    for (int i = 2; i < nameParts.length-1; i++){
-                                        MName.append(" ").append(nameParts[i]);
+                for (Row row : sheet) {
+                    //try {
+                    if(row.getCell(0)!=null) {
+                        switch (row.getCell(0).getCellType()) {
+                            case STRING:
+                                System.out.println(row.getCell(0).getStringCellValue());
+                                if (row.getCell(0).getStringCellValue().contains(groupPattern)) {
+                                    if (groupCurrent != null) {
+                                        groups.add(groupCurrent);
                                     }
-                                    String FName = nameParts[nameParts.length-1];
-                                    student = new Student(LName,MName.toString(),FName);
+                                    groupCurrent = new AcademicGroup(row.getCell(0).getStringCellValue().split("\\s")[0]);
+                                    if (groupCurrent.getGroupName().contains(".е") || groupCurrent.getGroupName().contains("і"))
+                                        groupCurrent.setLanguage(EN);
                                 }
-                                //Комірка 2 - email in Office365
-                                Email khpiEmail = new Email(true, true, student, row.getCell(2).getStringCellValue());
-                                //Комірка 3 - personal email row.getCell(4) != null && !
-                                if(row.getCell(3).getStringCellValue().contains("@")) {
-                                    Email personalEmail = new Email(true, false, student, row.getCell(3).getStringCellValue());
-                                    //Комірка 4 - phonesNumbers
-                                    Cell phonecell = row.getCell(4);
-                                    List<PhoneNumber> phones = new ArrayList<>();
-                                    if (phonecell.getCellType() == CellType.NUMERIC)
-                                        phones = (parsePhones(String.valueOf(phonecell.getNumericCellValue()), student));
-                                    else if (phonecell.getCellType() == CellType.STRING)
-                                        phones = parsePhones(row.getCell(4).getStringCellValue(), student);
-                                    //Збираємо студента
-                                    student.setAcademicGroup(groupCurrent);
-                                    student.addContact(khpiEmail);
-                                    student.addContact(personalEmail);
-                                    System.out.println(student.getContacts());
-                                    phones.forEach(student::addContact);
-                                    groupCurrent.addStudent(student);
+                                break;
+                            case NUMERIC:
+                                if (groupCurrent != null) {
+                                    Student student;
+                                    String[] nameParts = row.getCell(1).getStringCellValue().split(" ");
+                                    if(nameParts.length==3) student = new Student(nameParts[0], nameParts[1], nameParts[2]);
+                                    else if(nameParts.length==2)student = new Student(nameParts[0], nameParts[1], "NULL");
+                                    else{
+                                        String LName = nameParts[0];
+                                        StringBuilder MName = new StringBuilder(nameParts[1]);
+                                        for (int i = 2; i < nameParts.length-1; i++){
+                                            MName.append(" ").append(nameParts[i]);
+                                        }
+                                        String FName = nameParts[nameParts.length-1];
+                                        student = new Student(LName,MName.toString(),FName);
+                                    }
+                                    //Комірка 2 - email in Office365
+                                    Email khpiEmail = new Email(true, true, student, row.getCell(2).getStringCellValue());
+                                    //Комірка 3 - personal email row.getCell(4) != null && !
+                                    if(row.getCell(3).getStringCellValue().contains("@")) {
+                                        Email personalEmail = new Email(true, false, student, row.getCell(3).getStringCellValue());
+                                        //Комірка 4 - phonesNumbers
+                                        Cell phonecell = row.getCell(4);
+                                        List<PhoneNumber> phones = new ArrayList<>();
+                                        if (phonecell.getCellType() == CellType.NUMERIC)
+                                            phones = (parsePhones(String.valueOf(phonecell.getNumericCellValue()), student));
+                                        else if (phonecell.getCellType() == CellType.STRING)
+                                            phones = parsePhones(row.getCell(4).getStringCellValue(), student);
+                                        //Збираємо студента
+                                        student.setAcademicGroup(groupCurrent);
+                                        student.addContact(khpiEmail);
+                                        student.addContact(personalEmail);
+                                        System.out.println(student.getContacts());
+                                        phones.forEach(student::addContact);
+                                        groupCurrent.addStudent(student);
+                                    }
+                                    else {
+                                        student.setAcademicGroup(groupCurrent);
+                                        student.addContact(khpiEmail);
+                                        groupCurrent.addStudent(student);
+                                    }
                                 }
-                                else {
-                                    student.setAcademicGroup(groupCurrent);
-                                    student.addContact(khpiEmail);
-                                    groupCurrent.addStudent(student);
-                                }
-                            }
-                            break;
-                        default:
-                            // Handle other cell types if necessary
-                            break;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
-//                }
-//                catch (IllegalStateException e){ System.out.println("Whoops! " + e.getMessage());}
             }
+
             workbook.close();
         } catch (IOException e) {
             throw new RuntimeException(e);

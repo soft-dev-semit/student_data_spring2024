@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.annotation.MultipartConfig;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +46,7 @@ public class ExcelController {
         System.out.println("Current Working Directory: " + currentWorkingDir);
         if (!file.isEmpty()) {
             String filePath = saveFile(currentWorkingDir + "/resources/files/", fileName, file);
+            System.out.println("MARKER: "+ filePath);
             List<AcademicGroup> groups = ExcelUtilities.readAllGroupsFromExcel(filePath);
             if (groups.size()!=0) {
                 for (AcademicGroup group: groups) {
