@@ -50,12 +50,14 @@ public class ExcelController {
             List<AcademicGroup> groups = ExcelUtilities.readAllGroupsFromExcel(filePath);
             if (groups.size()!=0) {
                 for (AcademicGroup group: groups) {
-                    for (Student stud: group.getStudentsList()) {
-                        System.out.println(stud.getContacts());
-                    }
-                    if (academicGroupService.saveAcademicGroup(group)) {
-                        System.out.println("AcademicGroup " + group.getGroupName() + " was read from Excel and was saved in DB");
-                        System.out.println(group.toStringWithGrouplist());
+                    if (group!=null) {
+                        for (Student stud : group.getStudentsList()) {
+                            System.out.println(stud.getContacts());
+                        }
+                        if (academicGroupService.saveAcademicGroup(group)) {
+                            System.out.println("AcademicGroup " + group.getGroupName() + " was read from Excel and was saved in DB");
+                            System.out.println(group.toStringWithGrouplist());
+                        }
                     }
                 }
             } else {

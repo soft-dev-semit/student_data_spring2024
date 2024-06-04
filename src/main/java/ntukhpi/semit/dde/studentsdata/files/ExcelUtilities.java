@@ -98,9 +98,9 @@ public class ExcelUtilities {
             System.out.println(inputStream.toString());
             System.out.println(path);
             Workbook workbook = new XSSFWorkbook(inputStream);
+            AcademicGroup groupCurrent;
             for (Sheet sheet :workbook) {
-                AcademicGroup groupCurrent = null;
-
+                groupCurrent = null;
                 for (Row row : sheet) {
                     //try {
                     if(row.getCell(0)!=null) {
@@ -163,6 +163,7 @@ public class ExcelUtilities {
                         }
                     }
                 }
+                groups.add(groupCurrent);
             }
 
             workbook.close();

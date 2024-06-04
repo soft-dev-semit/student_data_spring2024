@@ -72,7 +72,7 @@ public class JSONController {
             // You can return an error response
             String errorMessage = "Error generating JSON file: " + e.getMessage();
             return ResponseEntity.badRequest().body(errorMessage.getBytes(StandardCharsets.UTF_8));
-        }   
+        }
     }
 
 }
